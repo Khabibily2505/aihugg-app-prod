@@ -1,0 +1,23 @@
+# Ignorar pasta do ambiente virtual
+venv/
+.venv/
+
+# Ignorar arquivo de ambiente (se usar)
+.env
+
+# Ignorar arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar configurações do editor
+.vscode/
+.idea/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivo de credenciais (se quiser)
+ai-hugg-39c92caeaf2a.json
