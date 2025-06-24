@@ -2,3 +2,7 @@ flask
 flask-cors
 werkzeug
 vercel-wsgi
+google-generativeai
+google-cloud-texttospeech
+python-dotenv
+gunicorn
