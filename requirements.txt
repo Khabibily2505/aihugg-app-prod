@@ -1,7 +1,4 @@
-flask
-flask-cors
-werkzeug
-vercel-wsgi
+Flask
 google-generativeai
 google-cloud-texttospeech
 python-dotenv
