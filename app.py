@@ -10,11 +10,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+from flask_cors import CORS # <-- Adicione esta linha
 
 load_dotenv()
 
 # --- CONFIGURAÇÃO DA APLICAÇÃO ---
 app = Flask(__name__)
+CORS(app) # <-- Adicione esta linha para permitir todas as origens (ótimo para testes)
+
+# Para produção, o ideal é ser mais específico:
+# cors = CORS(app, resources={r"/*": {"origins": ["https://ai-hugg.com", "http://localhost:3000"]}})
+
+
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+# ... resto do seu código de configuração
+
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
