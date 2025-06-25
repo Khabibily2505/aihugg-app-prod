@@ -1,4 +1,4 @@
-# app.py - VERSÃO FINAL, LIMPA E REVISADA
+# app.py - VERSÃO FINAL COM LOGS DE DEPURAÇÃO
 
 import os
 import io
@@ -10,25 +10,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
-from flask_cors import CORS # <-- Adicione esta linha
+from flask_cors import CORS
 
+# Carrega as variáveis de ambiente do .env
 load_dotenv()
 
 # --- CONFIGURAÇÃO DA APLICAÇÃO ---
 app = Flask(__name__)
-CORS(app) # <-- Adicione esta linha para permitir todas as origens (ótimo para testes)
-
-# Para produção, o ideal é ser mais específico:
-# cors = CORS(app, resources={r"/*": {"origins": ["https://ai-hugg.com", "http://localhost:3000"]}})
-
-
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-# ... resto do seu código de configuração
+# Configura o CORS para permitir requisições do seu frontend
+CORS(app, resources={r"/*": {"origins": "*"}}) # Para testes, permite tudo. Depois podemos restringir.
 
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Inicialização das extensões
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -130,31 +126,60 @@ def get_user_profile():
 @app.route('/gerar-audio', methods=['POST'])
 @jwt_required()
 def gerar_audio_endpoint():
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    if not user: return jsonify({"erro": "Usuário não encontrado."}), 404
+    print("--- ROTA /gerar-audio ACIONADA ---")
+    
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user:
+            print(f"ERRO: Usuário com ID de token {user_id} não foi encontrado.")
+            return jsonify({"erro": "Usuário de autenticação inválido."}), 404
+        print(f"Usuário identificado: {user.email} (Créditos: {user.credits})")
+    except Exception as e:
+        print(f"ERRO CRÍTICO ao buscar usuário: {e}")
+        return jsonify({"erro": "Falha ao verificar identidade."}), 500
 
-    if 'ebook_file' not in request.files: return jsonify({"erro": "Nenhum arquivo enviado."}), 400
+    print(f"Campos de arquivo recebidos: {list(request.files.keys())}")
+    if 'ebook_file' not in request.files:
+        print("ERRO: O campo 'ebook_file' não foi encontrado.")
+        return jsonify({"erro": "Nenhum arquivo enviado com o nome esperado."}), 422
+
     arquivo = request.files['ebook_file']
-    if arquivo.filename == '': return jsonify({"erro": "Nenhum arquivo selecionado."}), 400
+    if arquivo.filename == '':
+        print("ERRO: O arquivo está vazio.")
+        return jsonify({"erro": "Nenhum arquivo selecionado."}), 400
+    print(f"Arquivo recebido: {arquivo.filename}")
 
-    texto_extraido = extrair_texto_de_pdf(io.BytesIO(arquivo.read()))
-    if not texto_extraido: return jsonify({"erro": "Não foi possível ler o texto do PDF."}), 400
+    try:
+        arquivo_bytes = arquivo.read()
+        print(f"Arquivo lido em memória. Tamanho: {len(arquivo_bytes)} bytes.")
+        texto_extraido = extrair_texto_de_pdf(io.BytesIO(arquivo_bytes))
+        if not texto_extraido or len(texto_extraido) < 10:
+            print("ERRO: Extração de PDF retornou texto vazio ou muito curto.")
+            return jsonify({"erro": "Não foi possível extrair conteúdo válido do PDF."}), 400
+        print(f"Texto extraído com sucesso. Total de {len(texto_extraido)} caracteres.")
+    except Exception as e:
+        print(f"ERRO CRÍTICO durante a leitura do PDF: {e}")
+        return jsonify({"erro": "Ocorreu um erro ao processar o arquivo PDF."}), 500
 
     custo_em_creditos = (len(texto_extraido) // 15000) + 1
+    print(f"Custo calculado: {custo_em_creditos} créditos.")
     if user.credits < custo_em_creditos:
+        print(f"ERRO: Créditos insuficientes para {user.email}.")
         return jsonify({"erro": "Créditos insuficientes.", "seu_saldo": user.credits, "custo_necessario": custo_em_creditos}), 402
 
     resumo_texto = gerar_resumo_com_gemini(texto_extraido)
-    if not resumo_texto: return jsonify({"erro": "Falha ao gerar o resumo de texto."}), 500
+    if not resumo_texto: return jsonify({"erro": "Falha ao gerar resumo de texto."}), 500
     
     audio_mp3 = gerar_audio_do_texto(resumo_texto)
-    if not audio_mp3: return jsonify({"erro": "Falha ao converter o resumo em áudio."}), 500
+    if not audio_mp3: return jsonify({"erro": "Falha ao converter resumo em áudio."}), 500
 
     user.credits -= custo_em_creditos
     db.session.commit()
+    print(f"Sucesso! Créditos debitados. Novo saldo para {user.email}: {user.credits}")
     
     return send_file(io.BytesIO(audio_mp3), mimetype='audio/mpeg', as_attachment=True, download_name='resumo_aihugg.mp3')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
+
