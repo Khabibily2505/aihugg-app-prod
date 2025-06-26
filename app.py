@@ -25,8 +25,7 @@ app = Flask(__name__)
 # ⚠️ CORS CORRETAMENTE CONFIGURADO
 # --- CONFIGURAÇÃO DE CORS (A SOLUÇÃO DEFINITIVA) ---
 # Isto diz à sua API para aceitar pedidos vindos do seu site.
-CORS(app, resources={r"/*": {"origins": ["https://aihugg.com", "http://localhost:3000"]}})
-
+CORS(app)
 # --- CONFIGURAÇÕES GERAIS ---
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
