@@ -19,6 +19,11 @@ load_dotenv()
 
 # --- CONFIGURAÇÃO DA APLICAÇÃO ---
 app = Flask(__name__)
+
+@app.route('/ping')
+def ping():
+    return "pong"
+
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
@@ -287,6 +292,8 @@ def gerar_audio_endpoint():
 @app.route('/')
 def home():
     return 'API AIHugg está online! 🚀'
+
+print(app.url_map)
 
 # --- EXECUÇÃO PRINCIPAL (APENAS LOCAL) ---
 if __name__ == '__main__':
