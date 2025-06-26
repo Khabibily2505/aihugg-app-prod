@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIHugg - Transforme o seu Ebook numa Máquina de Vendas</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --blue: #0D6EFD;
+            --indigo: #6610f2;
+            --green: #198754;
+            --yellow: #ffc107;
+            --white: #fff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --dark: var(--gray-900);
+            --font-family-sans-serif: 'Poppins', sans-serif;
+            --gradient-primary: linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%);
+            --shadow-sm: 0 4px 15px rgba(0,0,0,0.05);
+            --shadow-md: 0 8px 30px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 45px rgba(0,0,0,0.15);
+            --border-radius: 16px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .elementor-section-wrap * { margin: 0; padding: 0; box-sizing: border-box; }
+        .aihugg-body {
+            font-family: var(--font-family-sans-serif);
+            background-color: var(--white);
+            color: var(--dark);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .aihugg-container { max-width: 1320px; margin: 0 auto; padding: 0 24px; }
+        .aihugg-section { padding: 120px 0; }
+        .aihugg-section h2 { font-size: 3.5rem; text-align: center; font-weight: 800; line-height: 1.2; margin-bottom: 24px; color: var(--dark); }
+        .aihugg-section .section-subtitle { text-align: center; color: var(--gray-600); max-width: 800px; margin: 0 auto 80px auto; font-size: 1.2rem; }
+        
+        .btn { display: inline-block; padding: 16px 36px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; border: none; cursor: pointer; }
+        .btn-primary { background: var(--gradient-primary); color: var(--white); box-shadow: var(--shadow-md); }
+        .btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--shadow-lg); }
+        .btn-secondary { background-color: var(--white); color: var(--blue); border: 2px solid var(--blue); }
+        .btn-secondary:hover { background-color: var(--blue); color: var(--white); }
+        
+        .header { padding: 20px 0; position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; }
+        .hero { padding: 200px 0 160px 0; text-align: center; background-color: var(--gray-100); }
+        .hero h1 { font-size: 5.5rem; font-weight: 800; line-height: 1.1; color: var(--dark); margin-bottom: 24px; animation: fadeIn 1s ease-out; }
+        .hero h1 span { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero .subheadline { font-size: 1.4rem; color: var(--gray-600); max-width: 750px; margin: 0 auto 40px auto; animation: fadeIn 1s ease-out 0.2s; animation-fill-mode: backwards; }
+        
+        .pricing-section { background-color: var(--white); }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            justify-content: center;
+            align-items: stretch;
+        }
+        .pricing-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 35px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid transparent; /* Borda invisível para manter o layout */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
+        }
+        .pricing-card:hover {
+            transform: translateY(-12px) scale(1.05);
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+        }
+        
+        .pricing-card .plan-name { font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; }
+        .pricing-card .plan-desc { color: var(--gray-600); font-size: 0.95rem; flex-grow: 1; min-height: 45px; margin-bottom: 20px; }
+        .pricing-card .price { font-size: 3rem; font-weight: 800; color: var(--dark); margin: 15px 0; }
+        .pricing-card .price span { font-size: 1.1rem; font-weight: 500; color: var(--gray-600); }
+        .pricing-card ul { list-style: none; margin: 25px 0; text-align: left; flex-grow: 1; }
+        .pricing-card ul li { margin-bottom: 15px; display: flex; align-items: flex-start; }
+        .pricing-card ul li::before { content: '✓'; color: var(--green); margin-right: 12px; font-weight: bold; margin-top: 4px; font-size: 1.2rem; }
+        .pricing-card .btn { margin-top: auto; width: 100%; }
+        
+        .pricing-card.free-plan {
+            border-color: transparent;
+        }
+        .free-plan .price { color: var(--green); }
+        
+        .pricing-card.recommended {
+             position: relative;
+             transform: scale(1.05);
+             border-color: transparent;
+        }
+        .pricing-card.recommended::before { content: 'MAIS POPULAR'; position: absolute; top: -1px; left: -1px; right: -1px; background: var(--gradient-primary); color: var(--white); padding: 10px; font-size: 0.9rem; font-weight: 600; border-top-left-radius: 14px; border-top-right-radius: 14px; }
+        
+        .credits-section { background-color: var(--dark); color: var(--white); padding-top: 100px; padding-bottom: 100px; margin-top: 50px; }
+        .credits-section h2 { color: var(--white); }
+        .credits-section .section-subtitle { color: rgba(255,255,255,0.7); }
+        .credit-pack { background-color: var(--gray-800); border-color: var(--gray-800); }
+        .credit-pack .plan-name { color: var(--white); }
+        .credit-pack .price { color: var(--yellow); }
+        .credit-pack ul li::before { color: var(--yellow); }
+        .credit-pack .discount-badge { background-color: var(--green); color: var(--white); font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; margin-left: 10px; font-weight: 600; }
+        
+        .faq-section { background-color: var(--gray-100); }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item { background: var(--white); margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); }
+        .faq-question { width: 100%; background: none; border: none; text-align: left; padding: 20px; font-size: 1.2rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--dark); }
+        .faq-question .toggle-icon { font-size: 1.5rem; transition: transform 0.3s ease; color: var(--blue); }
+        .faq-question.active .toggle-icon { transform: rotate(45deg); }
+        .faq-answer { padding: 0 20px; color: var(--gray-600); max-height: 0; overflow: hidden; transition: all 0.4s ease-out; }
+        .faq-answer p { padding-bottom: 20px; }
+
+    </style>
+</head>
+
+<body class="aihugg-body">
+    <header class="header">
+        <!-- O seu código do Cabeçalho aqui -->
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="aihugg-container">
+                <h1>O seu Ebook é um Ativo. <br><span>Nós transformamo-lo num Império.</span></h1>
+                <p class="subheadline">Infoprodutores de elite não vendem apenas PDFs. Eles entregam experiências. Com o AIHugg, converte o seu texto estático numa ferramenta de vendas dinâmica: um resumo em áudio, no estilo podcast, que cativa, convence e converte.</p>
+                <a href="#pricing" class="btn btn-primary">Descubra o seu Plano e Gere o seu Primeiro Áudio Grátis</a>
+            </div>
+        </section>
+
+        <section id="pricing" class="pricing-section">
+            <div class="aihugg-container">
+                <h2>Planos Desenhados para Cada Estágio do seu Sucesso</h2>
+                <p class="section-subtitle">Da validação da sua primeira oferta à escala massiva do seu império de conteúdo. A nossa estrutura de planos acompanha a sua ambição.</p>
+                
+                <div class="pricing-grid" id="plans-container">
+                    <!-- Os planos serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section class="aihugg-section credits-section">
+            <div class="aihugg-container">
+                <h2>Acabou a Munição? Recarregue o seu Arsenal.</h2>
+                <p class="section-subtitle">Para lançamentos, picos de procura ou aquela ideia genial que não pode esperar. Compre uma vez, use quando quiser. Os nossos créditos avulsos nunca expiram.</p>
+                
+                 <div class="pricing-grid" id="credits-container">
+                    <!-- Os pacotes de crédito serão inseridos aqui pelo JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="faq-section">
+            <div class="aihugg-container">
+                 <h2>Ainda tem Dúvidas? Nós temos as Respostas.</h2>
+                <p class="section-subtitle">Entendemos que uma ferramenta inovadora gera perguntas. Aqui estão as respostas para as dúvidas mais comuns dos nossos parceiros infoprodutores.</p>
+                 <div class="faq-container" id="faq-container">
+                    <!-- O FAQ será inserido aqui pelo JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const plansData = [
+                { name: 'Plano Gratuito', desc: 'Sinta o poder da conversão por áudio. Sem custos, sem riscos.', price: 'R$0', features: ['<strong>5 Créditos</strong> de Bónus', 'Gere o seu primeiro resumo', 'Acesso ao Programa de Afiliados'], buttonText: 'Ativar Teste Gratuito', type: 'free-plan' },
+                { name: 'Entrada', desc: 'O "test-drive" ideal para validar as suas ofertas com um diferencial competitivo.', price: 'R$9<span>,90/mês</span>', features: ['<strong>35 Créditos</strong> por Mês', 'Ideal para iscas digitais', 'Suporte via Comunidade'], buttonText: 'Quero Validar' },
+                { name: 'Iniciante', desc: 'Para o infoprodutor que está pronto para construir a sua audiência fiel.', price: 'R$29<span>,90/mês</span>', features: ['<strong>~45 Créditos</strong>/Mês', 'Bónus de Login Diário', 'Suporte Padrão'], buttonText: 'Construir Audiência' },
+                { name: 'Leitor', desc: 'O equilíbrio ideal para produtores de conteúdo consistentes.', price: 'R$59<span>,90/mês</span>', features: ['<strong>~70 Créditos</strong>/Mês', 'Bónus de Login Diário', 'Opção de Vozes Padrão'], buttonText: 'Escalar Conteúdo' },
+                { name: 'Criador', desc: 'O arsenal completo para quem transforma conteúdo em receita recorrente.', price: 'R$99<span>,90/mês</span>', features: ['<strong>~110 Créditos</strong>/Mês', '<strong>Opção de Vozes Premium</strong>', 'Suporte Prioritário'], buttonText: 'Virar Criador', isRecommended: true },
+                { name: 'Império', desc: 'Volume e poder para agências e produtores que escalam sem limites.', price: 'R$159<span>,90/mês</span>', features: ['<strong>~180 Créditos</strong>/Mês', '<strong>Acesso à API</strong> (Em Breve)', 'Suporte Dedicado'], buttonText: 'Dominar o Mercado' }
+            ];
+
+            const creditsData = [
+                { name: 'Recarga Rápida', desc: 'Para aquela emergência de conteúdo.', credits: 15, price: 'R$31,50', costPerCredit: 'R$2,10' },
+                { name: 'Recarga Padrão', desc: 'Um impulso rápido para os seus projetos.', credits: 30, price: 'R$54,90', costPerCredit: 'R$1,83', discount: '12%' },
+                { name: 'Recarga Essencial', desc: 'O equilíbrio perfeito entre custo e volume.', credits: 70, price: 'R$109,90', costPerCredit: 'R$1,57', discount: '25%' },
+                { name: 'Recarga Inteligente', desc: 'O pacote preferido dos nossos produtores.', credits: 100, price: 'R$150,00', costPerCredit: 'R$1,50', discount: '28%'},
+                { name: 'Recarga Avançada', desc: 'Para quem pensa em escala e longo prazo.', credits: 150, price: 'R$202,50', costPerCredit: 'R$1,35', discount: '35%'},
+                { name: 'Recarga Profissional', desc: 'O arsenal completo para o produtor profissional.', credits: 250, price: 'R$300,00', costPerCredit: 'R$1,20', discount: '42%' }
+            ];
+
+            const faqData = [
+                { question: "Como a IA cria o roteiro? É apenas um resumo?", answer: "Não, é muito mais. A nossa IA não resume, ela dramatiza. Ela analisa os pontos-chave do seu ebook e cria um diálogo natural e envolvente entre dois apresentadores, simulando um podcast. O objetivo é criar curiosidade e demonstrar o valor do seu conteúdo, não apenas listar os tópicos." },
+                { question: "Qual é a qualidade das vozes? Parecem robóticas?", answer: "Utilizamos a tecnologia de conversão de texto em fala mais avançada do Google, com vozes neurais (WaveNet) que são praticamente indistinguíveis da voz humana. Nos planos premium, você pode escolher entre diferentes perfis de voz para combinar perfeitamente com a sua marca." },
+                { question: "O que são 'créditos' e como são consumidos?", answer: "Pense em créditos como a 'moeda' da nossa plataforma. Cada geração de áudio consome uma quantidade de créditos baseada no tamanho do seu texto. Isto garante que você pague apenas pelo que usa. Um texto maior consome mais créditos, um menor, menos. Os créditos de assinatura são renovados mensalmente, e os créditos avulsos nunca expiram." },
+                { question: "Posso usar o áudio gerado em qualquer lugar?", answer: "Sim! Este é o principal benefício do AIHugg. Após a geração, você faz o download do arquivo MP3 e ele é seu. Use-o como um bónus na sua área de membros, como uma isca digital na sua página de captura, como conteúdo para o Spotify, YouTube, Instagram ou qualquer outra plataforma que desejar. O ativo é seu." },
+                { question: "Como o áudio ajuda a aumentar as minhas vendas?", answer: "De três formas principais: 1. **Aumenta a Conversão:** Funciona como uma 'amostra grátis' que quebra a objeção 'será que este conteúdo é bom?'. 2. **Aumenta o Valor Percebido:** Permite que você venda o seu produto por um preço maior ao oferecer um pacote (ebook + audiobook). 3. **Aumenta o Engajamento:** Mantém o seu público conectado com a sua marca através de um formato de conteúdo fácil de consumir." },
+                { question: "Preciso de conhecimento técnico para usar a plataforma?", answer: "Absolutamente não. A nossa plataforma foi desenhada para ser intuitiva. O processo é simples: faça o upload do seu ficheiro PDF, aguarde alguns minutos e faça o download do seu ficheiro MP3. É tudo." },
+                { question: "Qual é a diferença para contratar um freelancer para narrar o meu ebook?", answer: "Velocidade e custo. Um freelancer pode levar dias ou semanas e custar centenas ou milhares de reais. Com o AIHugg, você obtém um resultado de alta qualidade em minutos, por uma fração do custo, permitindo-lhe testar e lançar produtos muito mais rapidamente." },
+                { question: "A ferramenta funciona para qualquer nicho de mercado?", answer: "Sim. Se o seu produto é baseado em texto (desenvolvimento pessoal, marketing, finanças, ficção, etc.), a nossa IA consegue criar um resumo em áudio envolvente. A estrutura de diálogo é universal e adapta-se a qualquer tópico." },
+                { question: "O que é o Programa de Afiliados?", answer: "É a nossa forma de o recompensar por nos ajudar a crescer. Por cada novo cliente pagante que você indicar através do seu link exclusivo, tanto você como o seu amigo recebem um bónus em créditos. É uma relação ganha-ganha." },
+                { question: "Como funciona o suporte?", answer: "Oferecemos diferentes níveis de suporte dependendo do seu plano. Todos os utilizadores têm acesso à nossa base de conhecimento e comunidade. Os assinantes de planos pagos recebem suporte prioritário por e-mail, e os planos superiores têm acesso a um gestor de conta dedicado." }
+            ];
+
+            function renderPlans() {
+                const container = document.getElementById('plans-container');
+                if (!container) return;
+                plansData.forEach(plan => {
+                    const card = document.createElement('div');
+                    card.className = `pricing-card ${plan.isRecommended ? 'recommended' : ''} ${plan.type || ''}`;
+                    card.innerHTML = `<h3 class="plan-name">${plan.name}</h3><p class="plan-desc">${plan.desc}</p><div class="price">${plan.price}</div><ul>${plan.features.map(f => `<li>${f}</li>`).join('')}</ul><a href="#" class="btn ${plan.isRecommended ? 'btn-primary' : 'btn-secondary'}">${plan.buttonText}</a>`;
+                    container.appendChild(card);
+                });
+            }
+
+            function renderCredits() {
+                const container = document.getElementById('credits-container');
+                if (!container) return;
+                creditsData.forEach(pack => {
+                    const discountBadge = pack.discount ? `<span class="discount-badge">ECONOMIZE ${pack.discount}</span>` : '';
+                    const card = document.createElement('div');
+                    card.className = 'pricing-card credit-pack';
+                    card.innerHTML = `<h3 class="plan-name">${pack.name} ${discountBadge}</h3><p class="plan-desc">${pack.desc}</p><ul><li><strong>${pack.credits} Créditos</strong></li><li class="price">${pack.price}</li><li>(Custo: ${pack.costPerCredit} por crédito)</li></ul><a href="#" class="btn btn-secondary">Comprar Agora</a>`;
+                    container.appendChild(card);
+                });
+            }
+            
+            function renderFAQ() {
+                const container = document.getElementById('faq-container');
+                if (!container) return;
+                faqData.forEach(item => {
+                    const faqItem = document.createElement('div');
+                    faqItem.className = 'faq-item';
+                    faqItem.innerHTML = `<button class="faq-question">${item.question}<span class="toggle-icon">+</span></button><div class="faq-answer"><p>${item.answer}</p></div>`;
+                    container.appendChild(faqItem);
+                });
+
+                container.addEventListener('click', function(e) {
+                    const questionButton = e.target.closest('.faq-question');
+                    if (questionButton) {
+                        const answer = questionButton.nextElementSibling;
+                        const icon = questionButton.querySelector('.toggle-icon');
+                        const isActive = questionButton.classList.contains('active');
+
+                        document.querySelectorAll('.faq-question').forEach(q => {
+                            if (q !== questionButton) {
+                                q.classList.remove('active');
+                                q.nextElementSibling.style.maxHeight = null;
+                                q.querySelector('.toggle-icon').style.transform = 'rotate(0deg)';
+                            }
+                        });
+
+                        if (isActive) {
+                            questionButton.classList.remove('active');
+                            answer.style.maxHeight = null;
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            questionButton.classList.add('active');
+                            answer.style.maxHeight = answer.scrollHeight + "px";
+                            icon.style.transform = 'rotate(45deg)';
+                        }
+                    }
+                });
+            }
+
+            renderPlans();
+            renderCredits();
+            renderFAQ();
+        });
+    </script>
+</body>
+</html>
