@@ -60,18 +60,18 @@ class User(db.Model):
 # !! IMPORTANTE: Substitua 'price_...' pelos IDs de Preço REAIS do seu painel Stripe !!
 PRODUCT_MAP = {
     # --- Planos de Assinatura Mensal ---
-    "price_1PG...": {"type": "plan", "name": "Entrada", "credits": 35},
-    "price_1PG...": {"type": "plan", "name": "Iniciante", "credits": 15}, #+bônus
-    "price_1PG...": {"type": "plan", "name": "Leitor", "credits": 40},
-    "price_1PG...": {"type": "plan", "name": "Criador", "credits": 80},
-    "price_1PG...": {"type": "plan", "name": "Império", "credits": 150},
+    "prod_SZQimFYadvQa1C": {"type": "plan", "name": "Entrada", "credits": 35},
+    "prod_SZQiF3q3T7t9wY": {"type": "plan", "name": "Iniciante", "credits": 15}, #+bônus
+    "prod_SZQjCqytcTAofQ": {"type": "plan", "name": "Leitor", "credits": 40},
+    "prod_SZQkDJ5hW9FlpJ": {"type": "plan", "name": "Criador", "credits": 80},
+    "prod_SZQkJbqJbuMEVs": {"type": "plan", "name": "Império", "credits": 150},
     # --- Pacotes de Créditos Avulsos ---
-    "price_1PG...": {"type": "credits", "name": "Recarga Rápida", "credits": 15},
-    "price_1PG...": {"type": "credits", "name": "Recarga Padrão", "credits": 30},
-    "price_1PG...": {"type": "credits", "name": "Recarga Essencial", "credits": 70},
-    "price_1PG...": {"type": "credits", "name": "Recarga Inteligente", "credits": 100},
-    "price_1PG...": {"type": "credits", "name": "Recarga Avançada", "credits": 150},
-    "price_1PG...": {"type": "credits", "name": "Recarga Profissional", "credits": 250},
+    "prod_SZQlex8XhefyMV": {"type": "credits", "name": "Recarga Rápida", "credits": 15},
+    "prod_SZQmsngZPPqf5P": {"type": "credits", "name": "Recarga Padrão", "credits": 30},
+    "prod_SZQns6xa1Tb1ew": {"type": "credits", "name": "Recarga Essencial", "credits": 70},
+    "prod_SZQo8lz70yKH7f": {"type": "credits", "name": "Recarga Inteligente", "credits": 100},
+    "prod_SZQp9EtyRLGtPx": {"type": "credits", "name": "Recarga Avançada", "credits": 150},
+    "prod_SZQqS2LRkm6CQd": {"type": "credits", "name": "Recarga Profissional", "credits": 250},
 }
 
 
