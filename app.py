@@ -284,6 +284,10 @@ def gerar_audio_endpoint():
     
     return send_file(io.BytesIO(audio_mp3), mimetype='audio/mpeg', as_attachment=True, download_name='resumo_aihugg.mp3')
 
+@app.route('/')
+def home():
+    return 'API AIHugg está online! 🚀'
+
 
 # --- EXECUÇÃO PRINCIPAL ---
 if __name__ == '__main__':
