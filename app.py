@@ -204,6 +204,10 @@ def gerar_audio_endpoint():
     # Ele já debita os créditos corretamente.
     pass # Remova este 'pass' e mantenha o seu código original aqui
 
+@app.route('/')
+def home():
+    return 'API AIHugg está online! 🚀'
+
 # --- INICIALIZAÇÃO DA APLICAÇÃO ---
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
