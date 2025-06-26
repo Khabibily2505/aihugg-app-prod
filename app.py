@@ -29,6 +29,9 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+print("JWT_SECRET_KEY =", app.config['JWT_SECRET_KEY'])  # Debug: verificar se pegou a chave
+
+
 # --- CONFIGURAÇÃO DO STRIPE ---
 stripe.api_key = os.getenv('STRIPE_API_SECRET_KEY')
 stripe_webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET') # Vamos adicionar esta variável ao .env depois
@@ -100,18 +103,21 @@ def login_user():
     user = User.query.filter_by(email=data.get('email')).first()
     if not user or not user.check_password(data.get('password')):
         return jsonify({"erro": "Credenciais inválidas."}), 401
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     return jsonify({"access_token": access_token})
 
 @app.route('/profile', methods=['GET'])
 @jwt_required()
 def get_user_profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # <- CONVERTA AQUI
     user = User.query.get(user_id)
     if not user:
         return jsonify({"erro": "Usuário não encontrado."}), 404
-    return jsonify({"email": user.email, "credits": user.credits, "member_since": user.created_at.strftime('%d/%m/%Y')})
-
+    return jsonify({
+        "email": user.email,
+        "credits": user.credits,
+        "member_since": user.created_at.strftime('%d/%m/%Y')
+    })
 
 # --- NOVAS ROTAS DE PAGAMENTO ---
 
