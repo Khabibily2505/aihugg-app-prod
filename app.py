@@ -185,11 +185,17 @@ def stripe_webhook():
 
 # (O seu código de extração de PDF e geração de áudio continua aqui, sem alterações)
 def extrair_texto_de_pdf(arquivo_pdf_em_memoria):
-    #... seu código ...
+    # Seu código aqui (indentado)
+    texto = "exemplo de texto extraído"
+    return texto
+
 def gerar_resumo_com_gemini(texto_completo):
-    #... seu código ...
+    # Se não implementou, coloque pass
+    pass
+
 def gerar_audio_do_texto(texto_resumo):
-    #... seu código ...
+    # Código para gerar audio
+    pass
 
 @app.route('/gerar-audio', methods=['POST'])
 @jwt_required()
