@@ -26,13 +26,14 @@ app = Flask(__name__)
 # Define de quais origens (sites) sua API pode aceitar requisições.
 # Isso resolve o erro "blocked by CORS policy".
 CORS(app, resources={
-    r"/register": {"origins": "https://aihugg.com"},
-    r"/login": {"origins": "https://aihugg.com"},
-    r"/profile": {"origins": "https://aihugg.com"},
-    r"/gerar-audio": {"origins": "https://aihugg.com"},
-    r"/create-checkout-session": {"origins": "https://aihugg.com"},
-    r"/stripe-webhook": {"origins": "*"} # Webhook do Stripe precisa ser aberto
+    r"/register": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
+    r"/login": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
+    r"/profile": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
+    r"/gerar-audio": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
+    r"/create-checkout-session": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
+    r"/stripe-webhook": {"origins": "*"}  # webhook ainda liberado
 })
+
 
 # --- CONFIGURAÇÕES GERAIS ---
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
