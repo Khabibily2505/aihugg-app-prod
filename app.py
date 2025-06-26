@@ -22,14 +22,24 @@ app = Flask(__name__)
 # --- CONFIGURAÇÃO DO CORS (A CORREÇÃO ESTÁ AQUI!) ---
 # Define de quais origens (sites) sua API pode aceitar requisições.
 # Isso resolve o erro "blocked by CORS policy".
+# ⚠️ CORS CORRETAMENTE CONFIGURADO
 CORS(app, resources={
-    r"/register": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
-    r"/login": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
-    r"/profile": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
-    r"/gerar-audio": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
-    r"/create-checkout-session": {"origins": ["https://aihugg.com", "https://aihugg-app-prod.vercel.app"]},
-    r"/stripe-webhook": {"origins": "*"}  # webhook ainda liberado
+    r"/*": {
+        "origins": [
+            "https://aihugg.com",
+            "https://www.aihugg.com",
+            "https://aihugg-app-prod.vercel.app",
+            "http://localhost:3000",         # Se estiver testando localmente com React
+            "http://127.0.0.1:3000"          # Também cobre React local
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type"]
+    }
 })
+
+# Iniciar dependências
+db = SQLAlchemy(app)
+jwt = JWTManager(app)
 
 
 # --- CONFIGURAÇÕES GERAIS ---
