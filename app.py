@@ -288,7 +288,7 @@ def gerar_audio_endpoint():
 def home():
     return 'API AIHugg está online! 🚀'
 
-
-# --- EXECUÇÃO PRINCIPAL ---
+# --- EXECUÇÃO PRINCIPAL (APENAS LOCAL) ---
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5001)

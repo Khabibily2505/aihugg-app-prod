@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "app.py",
@@ -7,7 +8,18 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/register",
+      "methods": ["POST"],
+      "dest": "app.py"
+    },
+    {
+      "src": "/login",
+      "methods": ["POST"],
+      "dest": "app.py"
+    },
+    {
+      "src": "/profile",
+      "methods": ["GET"],
       "dest": "app.py"
     }
   ]
