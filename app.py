@@ -23,19 +23,9 @@ app = Flask(__name__)
 # Define de quais origens (sites) sua API pode aceitar requisições.
 # Isso resolve o erro "blocked by CORS policy".
 # ⚠️ CORS CORRETAMENTE CONFIGURADO
-CORS(app, resources={
-    r"/*": {
-        "origins": [
-            "https://aihugg.com",
-            "https://www.aihugg.com",
-            "https://aihugg-app-prod.vercel.app",
-            "http://localhost:3000",         # Se estiver testando localmente com React
-            "http://127.0.0.1:3000"          # Também cobre React local
-        ],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Authorization", "Content-Type"]
-    }
-})
+# --- CONFIGURAÇÃO DE CORS (A SOLUÇÃO DEFINITIVA) ---
+# Isto diz à sua API para aceitar pedidos vindos do seu site.
+CORS(app, resources={r"/*": {"origins": ["https://aihugg.com", "http://localhost:3000"]}})
 
 # --- CONFIGURAÇÕES GERAIS ---
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
