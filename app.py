@@ -12,6 +12,8 @@ from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
 from flask_cors import CORS
+CORS(app, supports_credentials=True, origins=["https://aihugg.com"])
+
 
 # Carrega as variáveis de ambiente do .env
 load_dotenv()
