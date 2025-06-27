@@ -63,6 +63,8 @@ class User(db.Model):
 @app.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
+     # 👇 Aqui o contexto da requisição existe. Você pode logar:
+    app.logger.error(f"[DEBUG] Payload recebido: {data}")
     if not data or not data.get('email') or not data.get('password'):
         return jsonify({"erro": "Email e senha são obrigatórios."}), 400
     if User.query.filter_by(email=data.get('email')).first():
