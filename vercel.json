@@ -3,23 +3,13 @@
   "builds": [
     {
       "src": "app.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb" }
     }
   ],
   "routes": [
     {
-      "src": "/register",
-      "methods": ["POST"],
-      "dest": "app.py"
-    },
-    {
-      "src": "/login",
-      "methods": ["POST"],
-      "dest": "app.py"
-    },
-    {
-      "src": "/profile",
-      "methods": ["GET"],
+      "src": "/(.*)",
       "dest": "app.py"
     }
   ]
