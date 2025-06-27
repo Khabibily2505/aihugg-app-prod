@@ -9,18 +9,32 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
 from flask_cors import CORS
 
-# Carrega variáveis de ambiente do ficheiro .env
+# Carrega variáveis de ambiente do .env
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://aihugg.com"}}) # Restringe o CORS apenas ao seu domínio
 
-# --- CONFIGURAÇÃO ---
+# CONFIGURAÇÕES GERAIS (ANTES de instanciar db!)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1) # Heroku/Render fix
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# --- INICIALIZAÇÃO DE SERVIÇOS ---
+# CORS ACEITANDO TODAS AS ORIGENS NECESSÁRIAS
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://aihugg.com",
+            "https://www.aihugg.com",
+            "https://aihugg-app-prod.vercel.app",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type"]
+    }
+})
+
+# Inicialização de serviços
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -29,7 +43,7 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 stripe_webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
 YOUR_DOMAIN = 'https://aihugg.com'
 
-# --- MODELO DE DADOS ---
+# Modelo de usuário
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -45,7 +59,7 @@ class User(db.Model):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
-# --- ROTAS DE AUTENTICAÇÃO E PERFIL ---
+# Rota de registro
 @app.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -57,7 +71,7 @@ def register_user():
     try:
         customer = stripe.Customer.create(
             email=data.get('email'),
-            name=data.get('email').split('@')[0] # Adiciona um nome ao cliente no Stripe
+            name=data.get('email').split('@')[0]
         )
         stripe_customer_id = customer.id
     except Exception as e:
@@ -70,6 +84,7 @@ def register_user():
     db.session.commit()
     return jsonify({"message": "Conta criada com sucesso! A redirecionar para login..."}), 201
 
+# Login
 @app.route('/login', methods=['POST'])
 def login_user():
     data = request.get_json()
@@ -78,10 +93,11 @@ def login_user():
     user = User.query.filter_by(email=data.get('email')).first()
     if not user or not user.check_password(data.get('password')):
         return jsonify({"erro": "Credenciais inválidas."}), 401
-    
+
     access_token = create_access_token(identity=user.id)
     return jsonify(access_token=access_token)
 
+# Perfil
 @app.route('/profile', methods=['GET'])
 @jwt_required()
 def get_user_profile():
@@ -96,7 +112,7 @@ def get_user_profile():
         member_since=user.created_at.strftime('%d/%m/%Y')
     )
 
-# --- ROTAS DE PAGAMENTO (STRIPE) ---
+# Checkout Stripe
 @app.route('/create-checkout-session', methods=['POST'])
 @jwt_required()
 def create_checkout_session():
@@ -112,17 +128,16 @@ def create_checkout_session():
         return jsonify({"erro": "Utilizador de pagamento não encontrado. Contacte o suporte."}), 404
 
     try:
-        # **LÓGICA CORRETA**: Busca o preço na API do Stripe para determinar o modo.
         price_object = stripe.Price.retrieve(price_id)
         mode = 'subscription' if price_object.type == 'recurring' else 'payment'
-        
+
         checkout_session = stripe.checkout.Session.create(
             customer=user.stripe_customer_id,
             line_items=[{'price': price_id, 'quantity': 1}],
-            mode=mode, 
+            mode=mode,
             success_url=f'{YOUR_DOMAIN}/pagamento-sucesso?session_id={{CHECKOUT_SESSION_ID}}',
             cancel_url=f'{YOUR_DOMAIN}/planos',
-            metadata={'user_id': user.id} # Metadata é crucial para o webhook
+            metadata={'user_id': user.id}
         )
         return jsonify({'url': checkout_session.url})
     except stripe.error.InvalidRequestError:
@@ -131,8 +146,8 @@ def create_checkout_session():
         app.logger.error(f"Erro ao criar sessão de checkout: {str(e)}")
         return jsonify(error={'message': "Falha ao iniciar o processo de pagamento."}), 500
 
+# Funções auxiliares para Webhook
 def handle_checkout_session(session):
-    """Lida com uma sessão de checkout bem-sucedida."""
     user_id = session.get('metadata', {}).get('user_id')
     user = User.query.get(user_id) if user_id else None
 
@@ -140,24 +155,19 @@ def handle_checkout_session(session):
         app.logger.error(f"Webhook 'checkout.session.completed' recebeu user_id inválido: {user_id}")
         return
 
-    # Obtém o item comprado para saber o que fazer
     line_items = stripe.checkout.Session.list_line_items(session.id, limit=1)
     price_id = line_items.data[0].price.id
-    
-    # --- AJUSTE A LÓGICA DE ACORDO COM OS SEUS PRICE IDS ---
-    # Exemplo: Se for um plano de subscrição
+
     if price_id == 'price_ID_PLANO_PRO':
         user.plan_id = 'pro'
-        user.credits += 1000 # Exemplo: Bónus de créditos no primeiro pagamento
-    # Exemplo: Se for um pacote de créditos avulso
+        user.credits += 1000
     elif price_id == 'price_ID_PACOTE_500_CREDITOS':
         user.credits += 500
-    
+
     db.session.commit()
-    app.logger.info(f"Pagamento bem-sucedido para user {user_id}. Plano/Créditos atualizados.")
+    app.logger.info(f"Pagamento bem-sucedido para user {user_id}.")
 
 def handle_invoice_paid(invoice):
-    """Lida com renovações de subscrição bem-sucedidas."""
     customer_id = invoice.get('customer')
     user = User.query.filter_by(stripe_customer_id=customer_id).first()
 
@@ -165,17 +175,14 @@ def handle_invoice_paid(invoice):
         app.logger.error(f"Webhook 'invoice.payment_succeeded' recebeu customer_id inválido: {customer_id}")
         return
 
-    # Identifica o plano pela subscrição
     price_id = invoice['lines']['data'][0]['price']['id']
-
-    # --- AJUSTE A LÓGICA DE CRÉDITOS RECORRENTES ---
     if price_id == 'price_ID_PLANO_PRO':
-        user.credits += 250 # Exemplo: Créditos mensais para o plano Pro
-    
+        user.credits += 250
+
     db.session.commit()
     app.logger.info(f"Renovação de subscrição para user {user.id} bem-sucedida.")
 
-
+# Webhook do Stripe
 @app.route('/stripe-webhook', methods=['POST'])
 def stripe_webhook():
     payload = request.data
@@ -186,22 +193,16 @@ def stripe_webhook():
         app.logger.warning(f"Erro de verificação do Webhook: {e}")
         return "Webhook Error", 400
 
-    # LÓGICA COMPLETA E ROBUSTA PARA EVENTOS
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         handle_checkout_session(session)
-        
     elif event['type'] == 'invoice.payment_succeeded':
-        # Essencial para renovações de subscrições
         invoice = event['data']['object']
-        # Ignora faturas de pagamentos únicos para evitar duplicados
         if invoice.get('billing_reason') == 'subscription_cycle':
-             handle_invoice_paid(invoice)
-
-    # Adicione outros eventos aqui se precisar (ex: 'customer.subscription.deleted')
+            handle_invoice_paid(invoice)
 
     return 'Success', 200
 
-# Adicione aqui as suas outras rotas (ex: /gerar-audio), se houver.
+# Executa localmente
 # if __name__ == '__main__':
-#     app.run()
+#     app.run(debug=True)
