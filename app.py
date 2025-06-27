@@ -14,6 +14,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# --- LINHAS DE DEBUG PARA ADICIONAR ---
+# Imprime a DATABASE_URL para os logs da Vercel para depuração.
+# ATENÇÃO: Isto irá expor a sua password nos logs. Remova depois de depurar!
+import logging
+logging.basicConfig(level=logging.DEBUG)
+db_url = os.getenv('DATABASE_URL')
+logging.debug(f"DATABASE_URL RECEBIDA PELA APLICAÇÃO: {db_url}")
+# --------------------------------------
+
+# --- CONFIGURAÇÃO ---
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+# A linha abaixo permanece igual
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://", 1) if db_url else None
+# ... (o resto do código)
+
 # CONFIGURAÇÕES GERAIS (ANTES de instanciar db!)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
